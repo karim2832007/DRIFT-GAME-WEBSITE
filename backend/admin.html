@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Dynamic Favicon -->
+  <link id="favicon" rel="icon" type="image/jpeg">
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("favicon").href = `${base_api}/uploads/misc/icon.jpg`;
+    });
+  </script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Cyber Drift X — Admin Panel</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Orbitron:wght@500;700&display=swap');
+
+:root{
+  --bg-a:#050b12;
+  --bg-b:#000000;
+  --neon:#00ffd0;
+  --cyan:#6ee7d8;
+  --accent:#4c6ef5;
+  --danger:#ff4d6d;
+  --muted:#93a1aa;
+  --glass: rgba(255,255,255,0.05);
+  --radius:12px;
+}
+
+html,body{
+  margin:0;
+  padding:0;
+  color:#e6eef2;
+  font-family:Inter, sans-serif;
+  background:radial-gradient(circle at 10% 10%,var(--bg-a),var(--bg-b));
+  background-size:200% 200%;
+  animation:bgPulse 20s ease-in-out infinite;
+  overflow-x:hidden;
+  min-height:100vh;
+}
+
+/* Top nav */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 64px;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  z-index: 9999;
+  border-bottom: 1px solid rgba(0,255,208,0.12);
+  box-shadow: 0 0 20px rgba(0,255,208,0.08);
+}
+
+.navbar a {
+  color: #e6eef2;
+  text-decoration: none;
+  font-family: Orbitron, sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: 0.18s ease;
+}
+
+.navbar a:hover { color: var(--neon); text-shadow: 0 0 10px rgba(0,255,208,0.5); }
+.navbar a.active { color: var(--neon); border-bottom:2px solid var(--neon); padding-bottom:6px; }
+
+/* Layout */
+.container {
+  max-width:1100px;
+  margin: 100px auto 80px;
+  padding: 0 20px;
+}
+
+/* ============================
+   LAYOUT SELECT (Yes / No)
+============================ */
+
+.layout-select {
+  width: 100%;
+  padding: 10px;
+  background: #0d0d0d;
+  color: #e6eef2;
+  border: 1px solid rgba(0,255,208,0.35);
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.layout-select:hover {
+  border-color: #00ffd0;
+  box-shadow: 0 0 8px rgba(0,255,208,0.35);
+}
+
+.layout-select:focus {
+  outline: none;
+  border-color: #00ffd0;
+  box-shadow: 0 0 12px rgba(0,255,208,0.45);
+}
+
+/* Dropdown menu options */
+.layout-select option {
+  background: #0d0d0d;
+  color: #e6eef2;
+}
+
+/* Hover highlight inside dropdown */
+.layout-select option:hover {
+  background: #00ffd0 !important;
+  color: #000 !important;
+}
+
+
+
+/* Cards */
+.card{
+  background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015));
+  border:1px solid var(--glass);
+  border-radius:var(--radius);
+  padding:18px;
+  margin-bottom:18px;
+  box-shadow:0 12px 42px rgba(2,6,23,0.6);
+  backdrop-filter: blur(8px) saturate(120%);
+}
+
+/* Inputs */
+.row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+.col { flex:1 1 220px; min-width:220px; }
+label { display:block; color:var(--muted); font-size:13px; margin-top:8px; }
+input, textarea, select {
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.06);
+  background:rgba(255,255,255,0.02);
+  color:#eaf6f5;
+  margin-top:6px;
+  font-size:14px;
+}
+textarea { min-height:110px; resize:vertical; }
+
+button{
+  margin-top:10px;
+  padding:10px 16px;
+  border-radius:999px;
+  border:0;
+  background:var(--neon);
+  color:#002424;
+  font-weight:700;
+  cursor:pointer;
+  transition:0.18s ease;
+}
+button.ghost { background:transparent; color:var(--neon); border:1px solid rgba(0,255,208,0.08); }
+small { color:var(--muted); }
+
+/* lists */
+.list { display:flex; flex-direction:column; gap:10px; margin-top:12px; }
+.item { display:flex; align-items:center; gap:12px; padding:10px; border-radius:10px; background:rgba(0,0,0,0.25); }
+.item img { width:72px; height:48px; object-fit:cover; border-radius:8px; border:1px solid rgba(255,255,255,0.03); }
+
+/* preview iframe */
+.preview-frame { width:100%; height:600px; border-radius:12px; border:1px solid rgba(255,255,255,0.04); overflow:hidden; }
+
+/* ============================
+   DEVLOG TABLE (ADMIN)
+============================ */
+
+.devlog-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.devlog-table th {
+  background: rgba(0,255,208,0.12);
+  padding: 12px;
+  text-align: left;
+  font-weight: 700;
+  color: #00ffd0;
+  font-family: monospace;
+  letter-spacing: 0.5px;
+}
+
+.devlog-table td {
+  padding: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  color: #e6eef2;
+  vertical-align: middle;
+}
+
+.devlog-table tr:hover {
+  background: rgba(0,255,208,0.06);
+}
+
+/* ============================
+   INPUTS INSIDE TABLE
+============================ */
+
+.devlog-text {
+  width: 100%;
+  padding: 6px 10px;
+  background: #0d0d0d;
+  border: 1px solid rgba(0,255,208,0.3);
+  border-radius: 6px;
+  color: #e6eef2;
+  font-size: 14px;
+}
+
+.devlog-text:focus {
+  outline: none;
+  border-color: #00ffd0;
+}
+
+/* ============================
+   SELECT DROPDOWN FIX
+============================ */
+
+.devlog-tag {
+  width: 100%;
+  padding: 6px 10px;
+  background: #0d0d0d;
+  color: #e6eef2;
+  border: 1px solid rgba(0,255,208,0.4);
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* Dropdown menu options */
+.devlog-tag option {
+  background: #0d0d0d;
+  color: #e6eef2;
+}
+
+/* Hover highlight inside dropdown */
+.devlog-tag option:hover {
+  background: #00ffd0 !important;
+  color: #000 !important;
+}
+
+/* ============================
+   TAG COLORS (Frontend + Admin)
+============================ */
+
+.tag-important { color: #ff4d6d; font-weight: 800; }
+.tag-new       { color: #00ffd0; font-weight: 800; }
+.tag-fix       { color: #ffe066; font-weight: 800; }
+.tag-improved  { color: #9d4bff; font-weight: 800; }
+
+/* ============================
+   IMAGE THUMBNAILS
+============================ */
+
+.thumb {
+  max-width: 80px;
+  border-radius: 6px;
+  display: block;
+}
+
+.image-box {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+/* ============================
+   BUTTONS INSIDE TABLE
+============================ */
+
+.delete-row {
+  background: #ff4d6d;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #fff;
+  font-weight: 700;
+}
+
+.delete-row:hover {
+  background: #ff1f4a;
+}
+
+/* responsive */
+@media (max-width:880px){
+  .container { margin:90px 12px 60px; }
+  .navbar { gap:8px; height:56px; }
+}
+
+/* animations */
+@keyframes bgPulse{ 0%{background-position:0% 0%;} 50%{background-position:100% 100%;} 100%{background-position:0% 0%;} }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="navbar">
+  <a href="#home" id="nav-home">Home</a>
+  <a href="#cars" id="nav-cars">Cars</a>
+  <a href="#downloads" id="nav-downloads">Downloads</a>
+  <a href="#comments" id="nav-comments">Comments</a>
+  <a href="#layout" id="nav-layout">Layout</a>
+  <a href="#preview" id="nav-preview">Preview</a>
+</div>
+
+<div class="container">
+
+<!-- HOME -->
+<section id="home" class="card-section">
+  <div class="card">
+    <h2>Home Content</h2>
+
+    <div class="row">
+      <div class="col">
+        <label for="title">Title</label>
+        <input id="title" placeholder="CYBER DRIFT X" />
+      </div>
+      <div class="col">
+        <label for="subtitle">Subtitle</label>
+        <input id="subtitle" placeholder="Official Game Portal" />
+      </div>
+    </div>
+
+    <label for="description">Description</label>
+    <textarea id="description" placeholder="A cyberpunk drift universe forged in Unity."></textarea>
+
+    <div style="display:flex;gap:12px;align-items:center;">
+      <button id="saveHomeBtn">Save Home</button>
+      <small id="homeStatus"></small>
+    </div>
+
+<!-- DEVLOG TABLE -->
+<h2 style="margin-top:32px;">Devlog Table</h2>
+
+<table class="devlog-table" id="devlogEditor">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Tag</th>
+      <th>Text</th>
+      <th>Image</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<button id="addRowBtn" style="margin-top:12px;">+ Add Row</button>
+<button id="saveAllDevlogBtn" style="margin-top:12px;">Save All</button>
+<small id="devlogSaveStatus"></small>
+
+
+</section>
+  <!-- CARS -->
+  <section id="cars" class="card-section" style="display:none;">
+    <div class="card">
+      <h2>Cars Manager</h2>
+
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:260px;">
+          <label for="carName">Car Name</label>
+          <input id="carName" placeholder="Car model name" />
+
+          <label for="carImageFile">Image (upload)</label>
+          <input id="carImageFile" type="file" accept="image/*" />
+          <button id="uploadCarBtn">Upload Image</button>
+          <small id="uploadCarStatus"></small>
+
+          <div id="carImagePreview" style="margin-top:10px;"></div>
+
+          <button id="addCarBtn" style="margin-top:12px;">Add Car</button>
+          <small id="addCarStatus"></small>
+        </div>
+      </div>
+
+      <h3 style="margin-top:18px;">Existing Cars</h3>
+      <div id="carsList" class="list"></div>
+    </div>
+  </section>
+
+  <!-- DOWNLOADS -->
+  <section id="downloads" class="card-section" style="display:none;">
+    <div class="card">
+      <h2>Downloads</h2>
+
+      <div class="row">
+        <div class="col">
+          <label for="downloadLabel">Label</label>
+          <input id="downloadLabel" placeholder="Windows Build" />
+        </div>
+        <div class="col">
+          <label for="downloadUrl">URL</label>
+          <input id="downloadUrl" placeholder="#" />
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;align-items:center;">
+        <button id="addDownloadBtn">Add Download</button>
+        <small id="downloadStatus"></small>
+      </div>
+
+      <h3 style="margin-top:18px;">Available Downloads</h3>
+      <div id="downloadsList" class="list"></div>
+    </div>
+  </section>
+
+  <!-- COMMENTS -->
+  <section id="comments" class="card-section" style="display:none;">
+    <div class="card">
+      <h2>Comments Moderation</h2>
+      <div id="commentsList" class="list"></div>
+    </div>
+  </section>
+
+<!-- LAYOUT -->
+<section id="layout" class="card-section" style="display:none;">
+  <div class="card">
+    <h2>Layout Toggles</h2>
+
+    <div class="row">
+      <div class="col">
+        <label>Show Cars</label>
+        <select id="showCars" class="layout-select">
+          <option value="1">Yes</option>
+          <option value="0">No</option>
+        </select>
+      </div>
+
+      <div class="col">
+        <label>Show Comments</label>
+        <select id="showComments" class="layout-select">
+          <option value="1">Yes</option>
+          <option value="0">No</option>
+        </select>
+      </div>
+
+      <div class="col">
+        <label>Show Downloads</label>
+        <select id="showDownloads" class="layout-select">
+          <option value="1">Yes</option>
+          <option value="0">No</option>
+        </select>
+      </div>
+
+      <div class="col">
+        <label>Show Social Links</label>
+        <select id="showSocialLinks" class="layout-select">
+          <option value="1">Yes</option>
+          <option value="0">No</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:12px;align-items:center;margin-top:12px;">
+      <button id="saveLayoutBtn">Save Layout</button>
+      <small id="layoutStatus"></small>
+    </div>
+  </div>
+</section>
+
+
+  <!-- PREVIEW -->
+  <section id="preview" class="card-section" style="display:none;">
+    <div class="card">
+      <h2>Live Preview</h2>
+
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;">
+        <label style="margin:0;">Preview URL</label>
+        <input id="previewUrl" placeholder="http://localhost:5000" />
+        <button id="loadPreviewBtn">Load</button>
+      </div>
+
+      <iframe id="previewFrame" class="preview-frame" src=""></iframe>
+    </div>
+  </section>
+
+</div>
+
+</body>
+<script>
+/* -------------------------
+   Helpers & routing
+------------------------- */
+const base_api = "http://localhost:5000";   // server root
+
+// API endpoints
+const publicBase = base_api + "/api";       // GET routes
+const adminBase  = base_api + "/api/admin"; // POST/DELETE routes
+
+// Static files (images)
+const staticBase = base_api;                // /uploads/*
+
+
+function showSection(hash) {
+  const id = (hash || "#home").replace("#", "");
+  document.querySelectorAll(".card-section").forEach(s => s.style.display = s.id === id ? "" : "none");
+  document.querySelectorAll(".navbar a").forEach(a => a.classList.toggle("active", a.getAttribute("href") === "#" + id));
+}
+window.addEventListener("hashchange", () => showSection(location.hash));
+window.addEventListener("load", () => {
+  showSection(location.hash);
+  initAll();
+});
+
+/* -------------------------
+   HOME content
+------------------------- */
+async function loadHome() {
+  try {
+    const res = await fetch(publicBase + "/content/home");
+    const data = await res.json();
+    document.getElementById("title").value = data.title || "";
+    document.getElementById("subtitle").value = data.subtitle || "";
+    document.getElementById("description").value = data.description || "";
+  } catch (e) {
+    console.error("loadHome", e);
+  }
+}
+
+async function saveHome() {
+  const title = document.getElementById("title").value;
+  const subtitle = document.getElementById("subtitle").value;
+  const description = document.getElementById("description").value;
+  const status = document.getElementById("homeStatus");
+  status.textContent = "Saving...";
+  try {
+    const res = await fetch(adminBase + "/content/home/update", {
+      method: "POST",
+      headers: { "Content-Type":"application/json" },
+      body: JSON.stringify({ title, subtitle, description })
+    });
+    const json = await res.json();
+    status.textContent = json.success ? "Saved" : "Error";
+    setTimeout(()=>status.textContent="",2000);
+  } catch (e) {
+    status.textContent = "Error";
+    console.error(e);
+  }
+}
+document.getElementById("saveHomeBtn").addEventListener("click", saveHome);
+
+/* ============================================================
+   DEVLOG ADMIN — MULTI-ROW TABLE SYSTEM
+============================================================ */
+
+const tableBody = document.querySelector("#devlogEditor tbody");
+const saveStatus = document.getElementById("devlogSaveStatus");
+
+/* -----------------------------
+   Add a new blank row
+----------------------------- */
+document.getElementById("addRowBtn").onclick = () => {
+  addDevlogRow({ id: null, tag: "new", text: "", image: "" });
+};
+
+function addDevlogRow(log) {
+  const tr = document.createElement("tr");
+
+  tr.dataset.id = log.id || "";
+  tr.dataset.image = log.image || "";
+
+  tr.innerHTML = `
+    <td class="row-number"></td>
+
+    <td>
+      <select class="devlog-tag">
+        <option value="important" ${log.tag === "important" ? "selected" : ""}>🔥 Important</option>
+        <option value="new" ${log.tag === "new" ? "selected" : ""}>🆕 New Feature</option>
+        <option value="fix" ${log.tag === "fix" ? "selected" : ""}>🛠 Fix / Patch</option>
+        <option value="improved" ${log.tag === "improved" ? "selected" : ""}>⚙️ Improved</option>
+      </select>
+    </td>
+
+    <td>
+      <input class="devlog-text" value="${log.text || ""}">
+    </td>
+
+    <td>
+      <div class="image-box">
+        ${log.image ? `<img src="${publicBase}/uploads/devlog/${log.image}" class="thumb">` : "—"}
+      </div>
+      <input type="file" class="devlog-image-input" accept="image/*">
+    </td>
+
+    <td>
+      <button class="pill validate delete-row">Delete</button>
+    </td>
+  `;
+
+  /* Delete row */
+  tr.querySelector(".delete-row").onclick = () => tr.remove();
+
+  /* Upload image */
+  tr.querySelector(".devlog-image-input").onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch(adminBase + "/devlog/upload", {
+      method: "POST",
+      body: formData
+    });
+
+    const json = await res.json();
+    if (json.success) {
+      tr.dataset.image = json.filename;
+      tr.querySelector(".image-box").innerHTML =
+        `<img src="${publicBase}/uploads/devlog/${json.filename}" class="thumb">`;
+    }
+  };
+
+  tableBody.appendChild(tr);
+  updateRowNumbers();
+}
+
+function updateRowNumbers() {
+  [...tableBody.querySelectorAll("tr")].forEach((tr, i) => {
+    tr.querySelector(".row-number").textContent = i + 1;
+  });
+}
+
+/* -----------------------------
+   Load existing devlog rows
+----------------------------- */
+async function loadDevlogEditor() {
+  tableBody.innerHTML = `<tr><td colspan="5">Loading...</td></tr>`;
+
+  const res = await fetch(publicBase + "/devlog");
+  const logs = await res.json();
+
+  tableBody.innerHTML = "";
+
+  logs.forEach(log => addDevlogRow(log));
+}
+
+loadDevlogEditor();
+
+/* -----------------------------
+   Save ALL rows at once
+----------------------------- */
+document.getElementById("saveAllDevlogBtn").onclick = async () => {
+  saveStatus.textContent = "Saving...";
+
+  const rows = [...tableBody.querySelectorAll("tr")].map(tr => ({
+    id: tr.dataset.id || null,
+    tag: tr.querySelector(".devlog-tag").value,
+    text: tr.querySelector(".devlog-text").value.trim(),
+    image: tr.dataset.image || ""
+  }));
+
+  await fetch(adminBase + "/devlog/overwrite", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(rows)
+  });
+
+  saveStatus.textContent = "Saved!";
+  setTimeout(() => saveStatus.textContent = "", 2000);
+
+  loadDevlogEditor();
+};
+
+
+
+
+
+/* -------------------------
+   Layout
+------------------------- */
+async function loadLayout() {
+  try {
+    const res = await fetch(publicBase + "/layout");
+    const data = await res.json();
+    document.getElementById("showCars").value = data.showCars ?? 1;
+    document.getElementById("showComments").value = data.showComments ?? 1;
+    document.getElementById("showDownloads").value = data.showDownloads ?? 1;
+    document.getElementById("showSocialLinks").value = data.showSocialLinks ?? 1;
+  } catch (e) { console.error(e); }
+}
+
+async function saveLayout() {
+  const payload = {
+    showCars: Number(document.getElementById("showCars").value),
+    showComments: Number(document.getElementById("showComments").value),
+    showDownloads: Number(document.getElementById("showDownloads").value),
+    showSocialLinks: Number(document.getElementById("showSocialLinks").value)
+  };
+  const status = document.getElementById("layoutStatus");
+  status.textContent = "Saving...";
+  try {
+    const res = await fetch(adminBase + "/layout/update", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify(payload)
+    });
+    const json = await res.json();
+    status.textContent = json.success ? "Saved" : "Error";
+    setTimeout(()=>status.textContent="",2000);
+  } catch (e) { status.textContent = "Error"; console.error(e); }
+}
+document.getElementById("saveLayoutBtn").addEventListener("click", saveLayout);
+
+/* -------------------------
+   Cars manager (UPLOAD ONLY)
+------------------------- */
+
+let uploadedCarImage = null; // store filename after upload
+
+async function loadCars() {
+  const list = document.getElementById("carsList");
+  list.innerHTML = "Loading...";
+
+  try {
+    const res = await fetch(publicBase + "/cars");
+    const rows = await res.json();
+
+    list.innerHTML = "";
+    if (!rows || rows.length === 0) {
+      list.innerHTML = "<small>No cars yet.</small>";
+      return;
+    }
+
+    rows.forEach(r => {
+      const div = document.createElement("div");
+      div.className = "item";
+
+      const img = document.createElement("img");
+      img.src = `${staticBase}/uploads/cars/${r.image}`;
+      img.onerror = () => {
+        img.src =
+          "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='100'%3E%3Crect width='100%25' height='100%25' fill='%230b0b0b'/%3E%3Ctext x='50%25' y='50%25' fill='%2399a' font-size='12' dominant-baseline='middle' text-anchor='middle'%3Eno image%3C/text%3E%3C/svg%3E";
+      };
+
+      const meta = document.createElement("div");
+      meta.style.flex = "1";
+      meta.innerHTML = `
+        <strong>${escapeHtml(r.name)}</strong>
+        <div style="color:var(--muted);font-size:13px;margin-top:6px;">
+          ${escapeHtml(r.image)}
+        </div>
+      `;
+
+      const actions = document.createElement("div");
+
+      const del = document.createElement("button");
+      del.className = "ghost";
+      del.textContent = "Delete";
+      del.onclick = async () => {
+        if (!confirm("Delete this car?")) return;
+        await fetch(adminBase + "/cars/delete/" + r.id, { method: "DELETE" });
+        await loadCars();
+      };
+
+      actions.appendChild(del);
+
+      div.appendChild(img);
+      div.appendChild(meta);
+      div.appendChild(actions);
+      list.appendChild(div);
+    });
+  } catch (e) {
+    list.innerHTML = "<small>Error loading cars</small>";
+    console.error(e);
+  }
+}
+
+/* -------------------------
+   Upload image (local only)
+------------------------- */
+
+document.getElementById("uploadCarBtn").addEventListener("click", async () => {
+  const fileInput = document.getElementById("carImageFile");
+  const status = document.getElementById("uploadCarStatus");
+  const preview = document.getElementById("carImagePreview");
+
+  if (!fileInput.files || fileInput.files.length === 0) {
+    status.textContent = "Select a file";
+    return;
+  }
+
+  const fd = new FormData();
+  fd.append("file", fileInput.files[0]);
+
+  status.textContent = "Uploading...";
+
+  try {
+    const res = await fetch(adminBase + "/cars/upload", {
+      method: "POST",
+      body: fd
+    });
+
+    const json = await res.json();
+
+    if (json && json.filename) {
+      uploadedCarImage = json.filename;
+      status.textContent = "Uploaded ✔";
+
+      preview.innerHTML = `
+        <img src="${publicBase}/uploads/cars/${json.filename}"
+       style="width:120px;border-radius:8px;margin-top:8px;">
+      `;
+    } else {
+      status.textContent = "Upload failed";
+    }
+  } catch (e) {
+    status.textContent = "Error";
+    console.error(e);
+  }
+
+  setTimeout(() => (status.textContent = ""), 2000);
+});
+
+/* -------------------------
+   Add car (uses uploaded image)
+------------------------- */
+
+document.getElementById("addCarBtn").addEventListener("click", async () => {
+  const name = document.getElementById("carName").value.trim();
+  const status = document.getElementById("addCarStatus");
+
+  if (!name) {
+    status.textContent = "Name required";
+    return;
+  }
+
+  if (!uploadedCarImage) {
+    status.textContent = "Upload an image first";
+    return;
+  }
+
+  status.textContent = "Saving...";
+
+  try {
+    const res = await fetch(adminBase + "/cars/add", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, image: uploadedCarImage })
+    });
+
+    const json = await res.json();
+
+    status.textContent = json.success ? "Added" : "Error";
+
+    document.getElementById("carName").value = "";
+    uploadedCarImage = null;
+    document.getElementById("carImagePreview").innerHTML = "";
+
+    await loadCars();
+  } catch (e) {
+    status.textContent = "Error";
+    console.error(e);
+  }
+
+  setTimeout(() => (status.textContent = ""), 2000);
+});
+/* -------------------------
+   Downloads
+------------------------- */
+async function loadDownloads() {
+  const list = document.getElementById("downloadsList");
+  list.innerHTML = "Loading...";
+
+  try {
+    const res = await fetch(publicBase + "/downloads");
+    const rows = await res.json();
+
+    list.innerHTML = "";
+    if (!rows || rows.length === 0) {
+      list.innerHTML = "<small>No downloads</small>";
+      return;
+    }
+
+    rows.forEach(r => {
+      const div = document.createElement("div");
+      div.className = "item";
+
+      const meta = document.createElement("div");
+      meta.style.flex = "1";
+
+      // URL shown exactly as stored — no base_api added
+      meta.innerHTML = `
+        <strong>${escapeHtml(r.label)}</strong>
+        <div style="color:var(--muted);font-size:13px;margin-top:6px;">
+          ${escapeHtml(r.url)}
+        </div>
+      `;
+
+      const actions = document.createElement("div");
+
+      const del = document.createElement("button");
+      del.className = "ghost";
+      del.textContent = "Delete";
+      del.onclick = async () => {
+        if (!confirm("Delete this download?")) return;
+        await fetch(adminBase + "/downloads/delete/" + r.id, { method: "DELETE" });
+        await loadDownloads();
+      };
+
+      actions.appendChild(del);
+
+      div.appendChild(meta);
+      div.appendChild(actions);
+      list.appendChild(div);
+    });
+
+  } catch (e) {
+    list.innerHTML = "<small>Error</small>";
+    console.error(e);
+  }
+}
+
+document.getElementById("addDownloadBtn").addEventListener("click", async () => {
+  const label = document.getElementById("downloadLabel").value.trim();
+  let url = document.getElementById("downloadUrl").value.trim();
+  const status = document.getElementById("downloadStatus");
+
+  if (!label || !url) {
+    status.textContent = "Label and URL required";
+    return;
+  }
+
+  // ⭐ FIX: ensure URL has http/https
+  if (!url.startsWith("http://") && !url.startsWith("https://")) {
+    url = "https://" + url;
+  }
+
+  status.textContent = "Saving...";
+
+  try {
+    const res = await fetch(adminBase + "/downloads/add", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ label, url })
+    });
+
+    const json = await res.json();
+    status.textContent = json.success ? "Added" : "Error";
+
+    document.getElementById("downloadLabel").value = "";
+    document.getElementById("downloadUrl").value = "";
+
+    await loadDownloads();
+
+  } catch (e) {
+    status.textContent = "Error";
+    console.error(e);
+  }
+
+  setTimeout(() => (status.textContent = ""), 2000);
+});
+
+/* -------------------------
+   Comments moderation
+------------------------- */
+async function loadComments() {
+  const list = document.getElementById("commentsList");
+  list.innerHTML = "Loading...";
+
+  try {
+    const res = await fetch(publicBase + "/comments");
+    const rows = await res.json();
+
+    list.innerHTML = "";
+    if (!rows || rows.length === 0) {
+      list.innerHTML = "<small>No comments</small>";
+      return;
+    }
+
+    rows.forEach(c => {
+      const div = document.createElement("div");
+      div.className = "item";
+
+      const meta = document.createElement("div");
+      meta.style.flex = "1";
+      meta.innerHTML = `
+        <strong>${escapeHtml(c.username)}</strong>
+        <div style="color:var(--muted);font-size:13px;margin-top:6px;">
+          ${escapeHtml(c.comment)}
+        </div>
+        <div style="color:var(--muted);font-size:12px;margin-top:6px;">
+          ${escapeHtml(c.date)}
+        </div>
+      `;
+
+      const actions = document.createElement("div");
+
+      /* DELETE BUTTON ONLY */
+      const del = document.createElement("button");
+      del.className = "ghost";
+      del.style.color = "var(--danger)";
+      del.textContent = "Delete";
+      del.onclick = async () => {
+        if (!confirm("Delete this comment permanently?")) return;
+        await fetch(`${adminBase}/comments/delete/${c.id}`, {
+          method: "DELETE"
+        });
+        loadComments();
+      };
+
+      actions.appendChild(del);
+
+      div.appendChild(meta);
+      div.appendChild(actions);
+      list.appendChild(div);
+    });
+
+  } catch (e) {
+    list.innerHTML = "<small>Error</small>";
+    console.error(e);
+  }
+}
+
+/* -------------------------
+   Preview
+------------------------- */
+document.getElementById("loadPreviewBtn").addEventListener("click", () => {
+  const url = document.getElementById("previewUrl").value.trim() || "/";
+  document.getElementById("previewFrame").src = url;
+});
+
+/* -------------------------
+   Init all
+------------------------- */
+async function initAll() {
+  await loadHome();
+  await loadLayout();
+  await loadCars();
+  await loadDownloads();
+  await loadComments();
+}
+
+/* -------------------------
+   Small helpers
+------------------------- */
+function escapeHtml(s) {
+  if (!s && s !== 0) return "";
+  return String(s).replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]); });
+}
+</script>
+
+</body>
+</html>

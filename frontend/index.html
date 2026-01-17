@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DRIFT GAME</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Dynamic Favicon -->
+  <link id="favicon" rel="icon" type="image/jpeg">
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("favicon").href = `${base_api}/uploads/misc/icon.jpg`;
+    });
+  </script>
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+  <!-- PARTICLES -->
+  <div id="particles"></div>
+
+  <main>
+
+    <!-- HERO -->
+    <header>
+      <h1 id="hero-title"></h1>
+      <div class="session">
+        <div class="value" id="hero-subtitle"></div>
+      </div>
+    </header>
+
+    <!-- HERO DESCRIPTION -->
+    <section id="section-hero-text" style="margin-top:40px; text-align:center;">
+      <p class="meta" id="hero-description"></p>
+      <div id="download-buttons" style="margin-top:24px;"></div>
+    </section>
+
+    <!-- DEVLOG -->
+    <section id="section-devlog" style="margin-top:60px;">
+      <h2 class="key-id">LATEST UPDATES</h2>
+      <p class="meta">Patch notes, development logs, and behind‑the‑scenes progress.</p>
+
+      <!-- Devlog entries injected here -->
+      <div id="devlogList" style="margin-top:20px;"></div>
+    </section>
+
+    <!-- CAR GALLERY -->
+    <section id="section-cars" style="margin-top:60px;">
+      <h2 class="key-id">CAR GALLERY</h2>
+      <p class="meta">All images are stored locally and loaded dynamically.</p>
+      <div class="grid" id="carGallery"></div>
+    </section>
+
+    <!-- COMMENTS -->
+    <section id="section-comments" style="margin-top:60px;">
+      <h2 class="key-id">COMMUNITY COMMENTS</h2>
+      <p class="meta">Your browser remembers your username & email.</p>
+
+      <div class="card" style="margin-top:20px;">
+        <div class="glow-edge"></div>
+
+        <input id="username" class="search" placeholder="Username">
+        <input id="email" class="search" placeholder="Email">
+        <textarea id="comment" class="search" placeholder="Write your comment..." rows="4"></textarea>
+
+        <div class="actions">
+          <button class="pill validate" onclick="submitComment()">Submit Comment</button>
+        </div>
+      </div>
+
+      <div class="grid" id="commentsList" style="margin-top:20px;"></div>
+    </section>
+
+    <!-- SOCIAL LINKS -->
+    <section id="section-social" style="margin-top:60px;">
+      <h2 class="key-id">FOLLOW THE CREATOR</h2>
+
+      <div class="actions" style="margin-top:20px;">
+        <a class="pill copy" 
+           id="social-youtube" 
+           href="https://youtube.com/@renderforce3d741?si=ys09K1L63Be2LGAR" 
+           target="_blank">
+           YouTube
+        </a>
+
+        <a class="pill copy" 
+           id="social-discord" 
+           href="https://discord.gg/SZb7J3Uayd" 
+           target="_blank">
+           Discord
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- BACK TO TOP -->
+  <a class="back-btn" href="#">Back to Top</a>
+
+  <!-- MAIN JS -->
+  <script src="js/main.js"></script>
+
+</body>
+</html>
